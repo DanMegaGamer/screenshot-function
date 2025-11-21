@@ -6,4 +6,8 @@ Start function
 
 See the response
 
-`curl localhost:8080`
+```
+```
+curl --header "Content-Type: application/json" -X POST --data '{"url":"https://bbc.co.uk/news"}' localhost:8080
+```
+```
