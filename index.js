@@ -12,7 +12,8 @@ functions.http('screenshot', (req, res) => {
     const url = req.body.url
     const fullPage = req.body.fullPage ||= false
     const viewportWidth = req.body.viewportWidth ||= 1920
-    const viewportHeight = req.body.viewportHeight || 1080
+    const viewportHeight = req.body.viewportHeight ||= 1080
+    const delay = req.body.delay || 0
 
     res.send({captureId: captureId, url: url});
 
@@ -20,6 +21,7 @@ functions.http('screenshot', (req, res) => {
       const browser = await puppeteer.launch();
       const page = await browser.newPage();
       await page.goto(url);
+      await new Promise(r => setTimeout(r, delay));
       await page.setViewport({width: viewportWidth, height: viewportHeight});
       await page.screenshot({path: `${captureId}.png`, fullPage: fullPage});
       await browser.close();
