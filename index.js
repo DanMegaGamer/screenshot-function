@@ -10,15 +10,17 @@ functions.http('screenshot', (req, res) => {
   if (req.method == "POST") {
     const captureId = crypto.randomUUID()
     const url = req.body.url
-    const fullPage = req.body.fullPage || false
+    const fullPage = req.body.fullPage ||= false
+    const viewportWidth = req.body.viewportWidth ||= 1920
+    const viewportHeight = req.body.viewportHeight || 1080
 
     res.send({captureId: captureId, url: url});
-
 
     (async () => {
       const browser = await puppeteer.launch();
       const page = await browser.newPage();
       await page.goto(url);
+      await page.setViewport({width: viewportWidth, height: viewportHeight});
       await page.screenshot({path: `${captureId}.png`, fullPage: fullPage});
       await browser.close();
     })();
