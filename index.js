@@ -1,6 +1,10 @@
 const functions = require('@google-cloud/functions-framework');
 const puppeteer = require('puppeteer');
 
+// https://docs.cloud.google.com/run/docs/local-dev-functions#node.js_1
+// https://github.com/GoogleCloudPlatform/functions-framework?tab=readme-ov-file
+// github.com/puppeteer/puppeteer/blob/main/examples/
+
 functions.http('screenshot', (req, res) => {
   // Only handle POST
   if (req.method == "POST") {
