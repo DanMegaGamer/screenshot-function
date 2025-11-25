@@ -13,7 +13,9 @@ functions.http('screenshot', (req, res) => {
     const fullPage = req.body.fullPage ||= false
     const viewportWidth = req.body.viewportWidth ||= 1920
     const viewportHeight = req.body.viewportHeight ||= 1080
-    const delay = req.body.delay || 0
+    const delay = req.body.delay ||= 0
+    const waitForNetworkIdle = req.body.waitForNetworkIdle || true
+    const scrollToBottom = req.body.scrollToBottom || true
 
     res.send({captureId: captureId, url: url});
 
@@ -23,6 +25,17 @@ functions.http('screenshot', (req, res) => {
       await page.goto(url);
       await new Promise(r => setTimeout(r, delay));
       await page.setViewport({width: viewportWidth, height: viewportHeight});
+
+      if (scrollToBottom == true) {
+        await page.evaluate(() => {
+          window.scrollTo(0, document.body.scrollHeight);
+        });
+      }
+
+      if (waitForNetworkIdle == true) {
+        await page.waitForNetworkIdle();
+      }
+
       await page.screenshot({path: `${captureId}.png`, fullPage: fullPage});
       await browser.close();
     })();
