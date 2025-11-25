@@ -14,7 +14,8 @@ functions.http('screenshot', (req, res) => {
     const viewportWidth = req.body.viewportWidth ||= 1920
     const viewportHeight = req.body.viewportHeight ||= 1080
     const delay = req.body.delay ||= 0
-    const waitForNetworkIdle = req.body.waitForNetworkIdle || true
+    const waitForNetworkIdle = req.body.waitForNetworkIdle ||= true
+    const waitUntil = req.body.waitUntil ||= 'load'
     const scrollToBottom = req.body.scrollToBottom || true
 
     res.send({captureId: captureId, url: url});
@@ -22,7 +23,7 @@ functions.http('screenshot', (req, res) => {
     (async () => {
       const browser = await puppeteer.launch();
       const page = await browser.newPage();
-      await page.goto(url);
+      await page.goto(url, { waitUntil: waitUntil });
       await new Promise(r => setTimeout(r, delay));
       await page.setViewport({width: viewportWidth, height: viewportHeight});
 
