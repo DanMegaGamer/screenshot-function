@@ -17,12 +17,14 @@ functions.http('screenshot', (req, res) => {
     const viewportWidth = req.body.viewportWidth ||= 1920
     const viewportHeight = req.body.viewportHeight ||= 1080
     const delay = req.body.delay ||= 0
-    const waitForNetworkIdle = req.body.waitForNetworkIdle ||= true
     const waitUntil = req.body.waitUntil ||= 'load'
-    const scrollToBottom = req.body.scrollToBottom ||= true
+    const  triggerLazyLoad = req.body.triggerLazyLoad ||= true
     const clickAccept = req.body.clickAccept ||= false
     const blockAds = req.body.blockAds ||= false
     let proxyUrl;
+
+    // Scrolling defaults
+    const scrollInterval = 500 // delay between viewport mouse scrolls
 
     if (req.body.proxy) {
       console.log("Proxy provided")
@@ -69,21 +71,30 @@ functions.http('screenshot', (req, res) => {
       await new Promise(r => setTimeout(r, delay));
       await page.setViewport({width: viewportWidth, height: viewportHeight});
 
-      if (scrollToBottom == true) {
-        console.log("Scrolling to bottom");
-        await page.evaluate(() => {
-          window.scrollTo(0, document.body.scrollHeight);
-        });
 
-      console.log("Scrolling to top");
-        await page.evaluate(() => {
-          window.scrollTo(0, 0);
-        });
-      }
+      // This is probably only required if fullPage == true
+      // We scroll in vertical chunks of viewportHeight with a delay
+      // stopping when reaching documentHeight
+      if (triggerLazyLoad == true) {
+        console.log("Detecting initial document height");
+        let documentHeight = await page.evaluate(() => { return document.body.scrollHeight });
+        console.log("documentHeight", documentHeight);
 
-      // TODO: Tighten the error handling to only relevant errors
-      console.log("Waiting for network idle")
-      if (waitForNetworkIdle == true) {
+        let currentPosition = 0;
+
+        while (currentPosition < documentHeight) {
+          console.log("currentPosition", currentPosition)
+          await page.mouse.wheel({ deltaY: currentPosition});
+
+          let scrollY = await page.evaluate(() => window.scrollY);
+          currentPosition += scrollY + viewportHeight;
+          await new Promise(resolve => setTimeout(resolve, scrollInterval));
+        }
+
+        await page.mouse.wheel({ deltaY: 0 })
+
+        console.log("Waiting for lazy loads")
+
         try {
           await page.waitForNetworkIdle();
         } catch(error) {
@@ -97,6 +108,5 @@ functions.http('screenshot', (req, res) => {
       console.log("Screenshot captured");
       await browser.close();
     })();
-
   }
 });
