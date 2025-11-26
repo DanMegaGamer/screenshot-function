@@ -63,8 +63,14 @@ functions.http('screenshot', (req, res) => {
         });
       }
 
+      // TODO: Tighten the error handling to only relevant errors
+      console.log("Waiting for network idle")
       if (waitForNetworkIdle == true) {
-        await page.waitForNetworkIdle();
+        try {
+          await page.waitForNetworkIdle();
+        } catch(error) {
+          console.log("Exceeded the timeout with", error)
+        }
       }
 
       console.log("Capturing screenshot");
