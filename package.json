@@ -11,6 +11,7 @@
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "dependencies": {
+    "@duckduckgo/autoconsent": "^14.37.3",
     "puppeteer": "^24.31.0"
   }
 }

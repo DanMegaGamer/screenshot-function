@@ -1,5 +1,7 @@
 const functions = require('@google-cloud/functions-framework');
 const puppeteer = require('puppeteer');
+const path = require('path');
+const autoConsentPath = path.join(__dirname, 'node_modules/@duckduckgo/autoconsent/dist/addon-mv3/')
 
 // https://docs.cloud.google.com/run/docs/local-dev-functions#node.js_1
 // https://github.com/GoogleCloudPlatform/functions-framework?tab=readme-ov-file
@@ -16,12 +18,24 @@ functions.http('screenshot', (req, res) => {
     const delay = req.body.delay ||= 0
     const waitForNetworkIdle = req.body.waitForNetworkIdle ||= true
     const waitUntil = req.body.waitUntil ||= 'load'
-    const scrollToBottom = req.body.scrollToBottom || true
+    const scrollToBottom = req.body.scrollToBottom ||= true
+    const clickAccept = req.body.clickAccept ||= false
+
+    const extensionPaths = [
+      ...(clickAccept == true ? [autoConsentPath]: [])
+    ]
 
     res.send({captureId: captureId, url: url});
 
     (async () => {
-      const browser = await puppeteer.launch();
+      const browser = await puppeteer.launch(
+        {
+          args: [
+            `--disable-extensions-except=${extensionPaths}`,
+            `--load-extension=${extensionPaths}`
+          ]
+        }
+      );
       const page = await browser.newPage();
       await page.goto(url, { waitUntil: waitUntil });
       await new Promise(r => setTimeout(r, delay));
