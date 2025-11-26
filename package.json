@@ -12,6 +12,7 @@
   },
   "dependencies": {
     "@duckduckgo/autoconsent": "^14.37.3",
+    "@ghostery/adblocker-puppeteer": "^2.12.5",
     "puppeteer": "^24.31.0"
   }
 }

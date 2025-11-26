@@ -1,5 +1,6 @@
 const functions = require('@google-cloud/functions-framework');
 const puppeteer = require('puppeteer');
+const { PuppeteerBlocker } = require('@ghostery/adblocker-puppeteer');
 const path = require('path');
 const autoConsentPath = path.join(__dirname, 'node_modules/@duckduckgo/autoconsent/dist/addon-mv3/')
 
@@ -20,6 +21,7 @@ functions.http('screenshot', (req, res) => {
     const waitUntil = req.body.waitUntil ||= 'load'
     const scrollToBottom = req.body.scrollToBottom ||= true
     const clickAccept = req.body.clickAccept ||= false
+    const blockAds = req.body.blockAds ||= false
 
     const extensionPaths = [
       ...(clickAccept == true ? [autoConsentPath]: [])
@@ -37,6 +39,14 @@ functions.http('screenshot', (req, res) => {
         }
       );
       const page = await browser.newPage();
+
+      if (blockAds == true) {
+        console.log("Enabling adblock")
+        PuppeteerBlocker.fromPrebuiltAdsAndTracking(fetch).then((blocker) => {
+          blocker.enableBlockingInPage(page);
+        });
+      }
+
       await page.goto(url, { waitUntil: waitUntil });
       await new Promise(r => setTimeout(r, delay));
       await page.setViewport({width: viewportWidth, height: viewportHeight});
