@@ -28,8 +28,14 @@ functions.http('screenshot', (req, res) => {
       await page.setViewport({width: viewportWidth, height: viewportHeight});
 
       if (scrollToBottom == true) {
+        console.log("Scrolling to bottom");
         await page.evaluate(() => {
           window.scrollTo(0, document.body.scrollHeight);
+        });
+
+      console.log("Scrolling to top");
+        await page.evaluate(() => {
+          window.scrollTo(0, 0);
         });
       }
 
