@@ -22,6 +22,13 @@ functions.http('screenshot', (req, res) => {
     const scrollToBottom = req.body.scrollToBottom ||= true
     const clickAccept = req.body.clickAccept ||= false
     const blockAds = req.body.blockAds ||= false
+    let proxyUrl;
+
+    if (req.body.proxy) {
+      console.log("Proxy provided")
+      // TODO: Handle Uncaught TypeError: Invalid URL
+      proxyUrl = new URL(`https://${req.body.proxy}`);
+    }
 
     const extensionPaths = [
       ...(clickAccept == true ? [autoConsentPath]: [])
@@ -34,10 +41,12 @@ functions.http('screenshot', (req, res) => {
         {
           args: [
             `--disable-extensions-except=${extensionPaths}`,
-            `--load-extension=${extensionPaths}`
+            `--load-extension=${extensionPaths}`,
+            ...(proxyUrl ? [`--proxy-server=${proxyUrl.host}`] : [])
           ]
         }
       );
+
       const page = await browser.newPage();
 
       if (blockAds == true) {
@@ -45,6 +54,15 @@ functions.http('screenshot', (req, res) => {
         PuppeteerBlocker.fromPrebuiltAdsAndTracking(fetch).then((blocker) => {
           blocker.enableBlockingInPage(page);
         });
+      }
+
+      if (proxyUrl) {
+        console.log("Authenticating proxy")
+
+        await page.authenticate({
+          username: proxyUrl.username,
+          password: proxyUrl.password
+        })
       }
 
       await page.goto(url, { waitUntil: waitUntil });
