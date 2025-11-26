@@ -43,7 +43,10 @@ functions.http('screenshot', (req, res) => {
         await page.waitForNetworkIdle();
       }
 
+      console.log("Capturing screenshot");
       await page.screenshot({path: `${captureId}.png`, fullPage: fullPage});
+
+      console.log("Screenshot captured");
       await browser.close();
     })();
 
