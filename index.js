@@ -18,7 +18,7 @@ functions.http('screenshot', (req, res) => {
     const viewportHeight = req.body.viewportHeight ||= 1080
     const delay = req.body.delay ||= 0
     const waitUntil = req.body.waitUntil ||= 'load'
-    const  triggerLazyLoad = req.body.triggerLazyLoad ||= true
+    const triggerLazyLoad = req.body.triggerLazyLoad ||= true
     const clickAccept = req.body.clickAccept ||= false
     const blockAds = req.body.blockAds ||= false
     let proxyUrl;
