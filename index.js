@@ -91,8 +91,6 @@ functions.http('screenshot', (req, res) => {
           await new Promise(resolve => setTimeout(resolve, scrollInterval));
         }
 
-        await page.mouse.wheel({ deltaY: 0 })
-
         console.log("Waiting for lazy loads")
 
         try {
@@ -101,6 +99,14 @@ functions.http('screenshot', (req, res) => {
           console.log("Exceeded the timeout with", error)
         }
       }
+
+      await page.evaluate(() => {
+        window.scrollTo({
+          top: 0,
+          left: 0,
+          behavior: "instant",
+        });
+      });
 
       console.log("Capturing screenshot");
       await page.screenshot({path: `${captureId}.png`, fullPage: fullPage});
