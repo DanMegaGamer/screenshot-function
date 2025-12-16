@@ -1,6 +1,6 @@
 ## Development
 
-### Start function
+### Start function
 
 ```bash
 npm start
